@@ -26,6 +26,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     first_name = models.CharField("Имя", max_length=255, default="00000000")
     last_name = models.CharField("Фамилия", max_length=255, default="00000000")
+    photo = models.ImageField("Аватар пользователя", upload_to="static/upload_files", default="static/upload_files/default_user.png")
+    type = models.CharField("Тип пользователя", max_length=255, default="Пациент")
+    ip_address = models.GenericIPAddressField(default="0.0.0.0")
+
 
     # USERNAME_FIELD - указывает какое поле мы будем юзать для входа.
     USERNAME_FIELD = "email"
@@ -35,6 +39,17 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+    """
+    Для получение IP  адресса.
+    """
+    def getClientIP(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip_address = x_forwarded_for.split(',')[0]
+        else:
+            ip_address = request.META.get('REMOTE_ADDR')
+        return ip_address
+
 
     # @property - делает это возможным. `token` - называеться динамическим свойством.
     @property
@@ -56,10 +71,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     """
     def _generate_jwt_token(self):
         dt = datetime.now() + timedelta(days = 60)
-        print(dt.strftime("%s"))
         token = jwt.encode({
             "id": self.pk,
-            "exp": int(dt.strftime("%s"))
+            "exp":  dt.utcfromtimestamp(dt.timestamp())
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token.decode("utf-8")

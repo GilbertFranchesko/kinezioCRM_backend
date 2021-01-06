@@ -25,10 +25,10 @@ class LoginSerializer(serializers.Serializer):
                 'Password is required field for log in.'
             )
 
-        user = authenticate(usernamd=email, password=password)
+        user = authenticate(username=email, password=password)
         if user is None:
             raise serializers.ValidationError(
-                'User with this email and password not founded.'
+                'Пользователь с таким E-mail и паролем не найден!'
             )
 
         if not user.is_active:
@@ -37,16 +37,16 @@ class LoginSerializer(serializers.Serializer):
             )
 
         return {
-            'token': user.token,
+            'token': user.token
         }
 
 
 class RegisterSerializer(serializers.Serializer):
-    first_name = serializers.CharField(max_length=255, write_only=True)
-    last_name = serializers.CharField(max_length=255, write_only=True)
-    email = serializers.EmailField(write_only=True)
+    first_name = serializers.CharField(max_length=255, write_only=False)
+    last_name = serializers.CharField(max_length=255, write_only=False)
+    email = serializers.EmailField(write_only=False)
     password = serializers.CharField(max_length=255, write_only=True)
-    username = serializers.CharField(max_length=255, write_only=True)
+    username = serializers.CharField(max_length=255, write_only=False)
 
     def validate(self, data):
         first_name = data.get('first_name', None)
@@ -57,24 +57,36 @@ class RegisterSerializer(serializers.Serializer):
 
         try:
             check_tmp = User.objects.get(email=email)
+            User.objects.get(username=username)
         except:
             pass
         else:
             raise serializers.ValidationError("Пользователь уже существует!")
 
-        tmp_account = User()
-        tmp_account.first_name = first_name
-        tmp_account.last_name = last_name
-        tmp_account.email = email
-        tmp_account.password = password
-        tmp_account.username = username
-        tmp_account.save()
 
-        print(tmp_account)
+
+        tmp_account = User.objects.create_user(first_name = first_name,
+                                       last_name = last_name,
+                                       email = email,
+                                       password=password,
+                                       username = username)
 
         if tmp_account is None:
             raise serializers.ValidationError("Произошла ошибка!")
 
         return {
-            'email': tmp_account,
+            'id': tmp_account.id,
+            'first_name': tmp_account.first_name,
+            'last_name': tmp_account.last_name,
+            'email': tmp_account.email,
+            'username': tmp_account.username,
         }
+
+
+class PhotoSerializer(serializers.Serializer):
+    class Meta:
+        model = User
+        fields = ('photo')
+
+
+

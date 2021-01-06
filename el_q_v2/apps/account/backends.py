@@ -7,7 +7,7 @@ from .models import User
 
 
 class JWTAuthentication(authentication.BaseAuthentication):
-    authentication_header_prefix = "Basic"
+    authentication_header_prefix = "Key"
 
     """
     Метод authenticate возвращяет либо: None или (user, token).
@@ -41,7 +41,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
     Попытайтесь подтвердить данные учетные данные. Если аутентификация
     успешно, верните пользователя и токен. Если нет, то выдает ошибку.
     """
-    def _authenticate_creadentials(self, reqeust, token):
+    def _authenticate_creadentials(self, request, token):
         try:
             payload = jwt.decode(token, settings.SECRET_KEY)
         except:
