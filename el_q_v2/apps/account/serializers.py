@@ -88,5 +88,9 @@ class PhotoSerializer(serializers.Serializer):
         model = User
         fields = ('photo')
 
-
+class PatientSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    first_name = serializers.CharField(max_length=255)
+    last_name = serializers.CharField(max_length=255)
+    AllName = serializers.CharField(max_length=255, allow_null=True)
 

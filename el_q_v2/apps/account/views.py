@@ -1,12 +1,11 @@
 from rest_framework import status
-import json
+from rest_framework import generics
 from rest_framework.permissions import AllowAny,  IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 
 from .models import User
-from .serializers import LoginSerializer, RegisterSerializer, PhotoSerializer
+from .serializers import LoginSerializer, RegisterSerializer, PhotoSerializer, PatientSerializer
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
@@ -55,5 +54,18 @@ class Check(APIView):
         queryset = User.objects.get(id=request.user.id)
         print(queryset.getClientIP(request))
         return Response('ok')
+
+
+class GetPatients(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PatientSerializer
+
+    def  get_queryset(self):
+        patients = User.objects.filter(type="Пациент")
+        for patient in patients:
+            patient.AllName = patient.first_name+" "+patient.last_name+" [ID:"+str(patient.id)+"]"
+        return patients
+
+
 
 
