@@ -9,8 +9,8 @@ from account.models import User
 """
 
 class MedRecord(models.Model):
-    patient = models.IntegerField("ID пациента")
-    doctor = models.IntegerField("ID врача")
+    patient = models.IntegerField("ID пациента", default=0)
+    doctor = models.IntegerField("ID врача", default=0)
     diagnosis = models.CharField("Диагноз", default="Не определён", max_length=255)
     created = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
@@ -23,4 +23,4 @@ class MedRecord(models.Model):
         return User.objects.get(id=self.patient).first_name+" "+User.objects.get(id=self.patient).last_name
 
     def getDoctor(self):
-        return User.objects.get(id=self.doctor).first_name+" "+User.objects.get(id=self.patient).last_name
+        return User.objects.get(id=self.doctor).first_name+" "+User.objects.get(id=self.doctor).last_name

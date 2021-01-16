@@ -68,14 +68,17 @@ class MedRecordInitSerializer(serializers.Serializer):
     patientName = serializers.CharField(max_length=255)
     doctorName = serializers.CharField(max_length=255)
     diagnosis = serializers.CharField(max_length=255)
+    created = serializers.CharField(max_length=255)
 
-class MedRecordShowBy(serializers.Serializer):
-    id = serializers.IntegerField()
-    patient = serializers.IntegerField()
-    doctor = serializers.IntegerField()
+class MedRecordShowBy(serializers.ModelSerializer):
     patientName = serializers.CharField(max_length=255)
     doctorName = serializers.CharField(max_length=255)
-    diagnosis = serializers.CharField(max_length=255)
+    created = serializers.CharField(max_length=255)
+    update = serializers.CharField(max_length=255)
+    id = serializers.IntegerField()
+    class Meta:
+        model = MedRecord
+        fields = "__all__"
 
 
 

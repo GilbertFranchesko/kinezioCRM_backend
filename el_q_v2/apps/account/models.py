@@ -29,6 +29,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     photo = models.ImageField("Аватар пользователя", upload_to="static/upload_files", default="static/upload_files/default_user.png")
     type = models.CharField("Тип пользователя", max_length=255, default="Пациент")
     ip_address = models.GenericIPAddressField(default="0.0.0.0")
+    rating = models.IntegerField(default=0)
 
 
     # USERNAME_FIELD - указывает какое поле мы будем юзать для входа.
