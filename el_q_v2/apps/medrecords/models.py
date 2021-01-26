@@ -14,7 +14,7 @@ class MedRecord(models.Model):
     diagnosis = models.CharField("Диагноз", default="Не определён", max_length=255)
     created = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
-    training_list = models.TextField("Списко тренеровок(JSON)", default="{}")
+    training_list = models.TextField("Списко тренеровок(JSON)", default="[]")
 
     # Для того что-бы, если мед. карта была кинута в "архив", понять что она не действительна(=0).
     active_id = models.IntegerField("ID актуального врача", default=0)

@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import User
-from .serializers import LoginSerializer, RegisterSerializer, PhotoSerializer, PatientSerializer
+from .serializers import LoginSerializer, RegisterSerializer, PhotoSerializer, PatientSerializer, DoctorSerializer
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
@@ -66,6 +66,16 @@ class GetPatients(generics.ListAPIView):
             patient.AllName = patient.first_name+" "+patient.last_name+" [ID:"+str(patient.id)+"]"
         return patients
 
+
+class GetDoctors(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = DoctorSerializer
+
+    def  get_queryset(self):
+        doctors = User.objects.filter(type="Врач")
+        for doctor in doctors:
+            doctor.AllName = doctor.first_name+" "+doctor.last_name+" [ID:"+str(doctor.id)+"]"
+        return doctors
 
 
 

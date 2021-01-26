@@ -46,17 +46,16 @@ INSTALLED_APPS = [
     'corsheaders',
     'djoser',
     'jwt',
-    'django_crontab',
+    'celery',
+    'django_celery_results',
+    'django_celery_beat',
 
 
     'account',
     'medrecords',
-    'records'
+    'records',
+    'notifications'
 
-]
-
-CRONJOBS = [
-    ("*/1 * * * *", "records.cron.check_date")
 ]
 
 AUTH_USER_MODEL = "account.user"
@@ -121,6 +120,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 20,
+        }
     }
 }
 
@@ -149,7 +151,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -159,9 +161,10 @@ USE_TZ = True
 
 DATE_INPUT_FORMATS = "d M Y (H:i:s)"
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
+# Celery
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
