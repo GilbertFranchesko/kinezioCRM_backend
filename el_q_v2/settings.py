@@ -118,11 +118,12 @@ WSGI_APPLICATION = 'el_q_v2.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 20,
-        }
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'elqv2',
+	    'USER': 'elqv2admin',
+	    'PASSWORD': '123321',
+        'HOST': 'localhost',
+	    'POST': '',
     }
 }
 

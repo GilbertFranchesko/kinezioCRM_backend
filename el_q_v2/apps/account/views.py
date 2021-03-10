@@ -37,6 +37,15 @@ class InfoByAuthAPIView(APIView):
         tmp.pop('password')
         return Response(tmp)
 
+class InfoByIdAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        queryset = User.objects.get(id=request.GET["id"])
+        tmp = queryset.__dict__
+        tmp.pop('_state')
+        tmp.pop('password')
+        return Response(tmp)
 
 class SetPhoto(APIView):
     permission_classes = [AllowAny]
@@ -76,6 +85,5 @@ class GetDoctors(generics.ListAPIView):
         for doctor in doctors:
             doctor.AllName = doctor.first_name+" "+doctor.last_name+" [ID:"+str(doctor.id)+"]"
         return doctors
-
 
 
