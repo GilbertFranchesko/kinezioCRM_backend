@@ -39,7 +39,6 @@ class ShowByID(generics.ListAPIView):
         queryset_model['doctorName'] = queryset.getDoctor()
         queryset_model['created'] = str(queryset.created)
         queryset_model['update'] = str(queryset.update)
-        print(queryset_model)
         serializer = self.serializer_class(data=queryset_model)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data)

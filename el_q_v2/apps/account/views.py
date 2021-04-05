@@ -77,13 +77,12 @@ class GetPatients(generics.ListAPIView):
 
 
 class GetDoctors(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = DoctorSerializer
 
     def  get_queryset(self):
+        print(self.request.user.id)
         doctors = User.objects.filter(type="Врач")
         for doctor in doctors:
             doctor.AllName = doctor.first_name+" "+doctor.last_name+" [ID:"+str(doctor.id)+"]"
         return doctors
-
-

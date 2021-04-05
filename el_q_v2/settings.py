@@ -50,11 +50,11 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_celery_beat',
 
-
     'account',
     'medrecords',
     'records',
-    'notifications'
+    'notifications',
+    'medications'
 
 ]
 
@@ -84,7 +84,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'account.backends.JWTAuthentication',
     )
-    
+
 
 }
 

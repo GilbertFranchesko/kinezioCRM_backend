@@ -90,8 +90,6 @@ class MedRecordAddSerializer(serializers.Serializer):
         patient = data.get('patient', None)
         doctor = data.get('doctor', None)
 
-        print("\n\n", data.get('doctor', None), "\n\n")
-
         if patient == doctor:
             raise serializers.ValidationError(
                 "Пациент не доктор!"

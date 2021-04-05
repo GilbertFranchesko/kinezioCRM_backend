@@ -99,4 +99,7 @@ class DoctorSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=255)
     last_name = serializers.CharField(max_length=255)
     AllName = serializers.CharField(max_length=255, allow_null=True)
-
+    photo = serializers.CharField(max_length=255)
+    specialist = serializers.CharField(max_length=255)
+    cabinet = serializers.IntegerField()
+    bio = serializers.CharField()

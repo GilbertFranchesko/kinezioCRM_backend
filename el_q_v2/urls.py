@@ -22,5 +22,6 @@ urlpatterns = [
     path('api/account/', include('account.urls')),
     path('api/medrecords/', include('medrecords.urls')),
     path('api/records/', include('records.urls')),
-    path('api/notifications/', include('notifications.urls'))
+    path('api/notifications/', include('notifications.urls')),
+    path('api/medications/', include('medications.urls'))
 ]

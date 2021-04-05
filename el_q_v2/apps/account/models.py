@@ -1,4 +1,3 @@
-import jwt
 from datetime import datetime
 from datetime import timedelta
 
@@ -11,6 +10,7 @@ from django.core import validators
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from .UserManager import UserManager
+import jwt
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -30,6 +30,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     type = models.CharField("Тип пользователя", max_length=255, default="Пациент")
     ip_address = models.GenericIPAddressField(default="0.0.0.0")
     rating = models.IntegerField(default=0)
+
+    specialist = models.CharField("Специальность", max_length=255, default="none")
+    cabinet = models.IntegerField("Номер кабиента", default=-1)
+    bio = models.TextField("Краткая биография", default="null")
 
 
     # USERNAME_FIELD - указывает какое поле мы будем юзать для входа.
@@ -57,9 +61,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     def token(self):
         return self._generate_jwt_token()
 
-    """ 
-    Следущии две функции нужны для самого Django. 
-    (Для обработки електроной очереди и т.д.) 
+    """
+    Следущии две функции нужны для самого Django.
+    (Для обработки електроной очереди и т.д.)
     """
     def get_full_name(self):
         return self.username
