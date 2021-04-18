@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.db.models.fields import TextField
+from django.utils import timezone
 from .models import MedRecord
+from medications.models import Medication
 from account.models import User
 
 class MedRecordSerializer(serializers.Serializer):
@@ -11,6 +13,8 @@ class MedRecordSerializer(serializers.Serializer):
     created = serializers.DateTimeField(write_only=False, allow_null=True)
     update = serializers.DateTimeField(write_only=False, allow_null=True)
     active_id = serializers.IntegerField(allow_null=True)
+    patientName = serializers.CharField(max_length=255)
+    doctorName = serializers.CharField(max_length=255)
 
     def validate(self, data):
         patient = data.get('patient')
@@ -127,3 +131,48 @@ class MedRecordAddSerializer(serializers.Serializer):
 
 
 
+"""
+    Сериализатор для добавления медикаментов за их ID.
+"""
+
+class MedicationSerializer(serializers.Serializer):
+    medrecord_id = serializers.IntegerField()
+    medication_id = serializers.IntegerField()
+    name_medication = serializers.CharField(max_length = 255, default="None")
+    dose = serializers.CharField(max_length = 255)
+    finish_date = serializers.DateField(default = timezone.now().date())
+
+    def validate_medrecord_id(self, value):
+        try:
+            query = MedRecord.objects.get(id=value)
+            return value
+        except:
+            raise serializers.ValidationError("Медицинская карта не найдена!")
+
+
+    def validate_medication_id(self, value):
+        try:
+            query = Medication.objects.get(id=value)
+            return value
+        except:
+            raise serializers.ValidationError("Препарат не был найден!")
+
+
+class MedicationDeleteSerializer(serializers.Serializer):
+    medrecord_id = serializers.IntegerField()
+    medication_id = serializers.IntegerField()
+
+    def validate_medrecord_id(self, value):
+        try:
+            query = MedRecord.objects.get(id=value)
+            return value
+        except:
+            raise serializers.ValidationError("Медицинская карта не найдена!")
+
+
+    def validate_medication_id(self, value):
+        try:
+            query = Medication.objects.get(id=value)
+            return value
+        except:
+            raise serializers.ValidationError("Препарат не был найден!")
