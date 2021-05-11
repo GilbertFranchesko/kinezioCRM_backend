@@ -15,7 +15,7 @@ class MedRecord(models.Model):
     diagnosis = models.CharField("Диагноз", default="Не определён", max_length=255)
     created = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
-    medications = ArrayField(models.CharField(max_length=255), blank=True, default=list)
+    medications = models.TextField(blank=True)
     training_list = ArrayField(models.IntegerField(), blank=True)
 
     # Для того что-бы, если мед. карта была кинута в "архив", понять что она не действительна(=0).

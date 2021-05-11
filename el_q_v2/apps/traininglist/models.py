@@ -12,7 +12,7 @@ class Training(models.Model):
     doctor = models.IntegerField("Пациент")
     medrecord = models.IntegerField("Мед. карточка")
     title = models.CharField("Заголовок тренировки", max_length=100)
-    descrption = models.TextField("Описание тренировки")
+    description = models.TextField("Описание тренировки")
     finish_date = models.DateField("Дата окончание тренировок")
 
 

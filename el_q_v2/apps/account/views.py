@@ -3,6 +3,7 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny,  IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import User
 from .serializers import LoginSerializer, RegisterSerializer, PhotoSerializer, PatientSerializer, DoctorSerializer
@@ -86,3 +87,12 @@ class GetDoctors(generics.ListAPIView):
         for doctor in doctors:
             doctor.AllName = doctor.first_name+" "+doctor.last_name+" [ID:"+str(doctor.id)+"]"
         return doctors
+
+class UpdatePhoto(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def put(self, request):
+        file_object = request.FILES
+        print(file_object)
+        return Response("ok")

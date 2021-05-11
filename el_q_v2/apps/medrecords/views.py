@@ -1,7 +1,8 @@
 from rest_framework import status, generics
 from .models import MedRecord
 from medications.models import Medication
-from .serializers import MedRecordSerializer, MedRecordIDSerializer, MedRecordInitSerializer, MedRecordShowBy, MedicationSerializer, MedicationDeleteSerializer
+from traininglist.models import Training
+from .serializers import MedRecordSerializer, MedRecordIDSerializer, MedRecordInitSerializer, MedRecordShowBy, MedicationSerializer, MedicationDeleteSerializer, AddTrainingSerializer
 from rest_framework.permissions import AllowAny,  IsAuthenticated
 from rest_framework.response import Response
 from django.forms.models import model_to_dict
@@ -93,38 +94,60 @@ class AddMedication(APIView):
         serializer = self.serializer_class(data = request.data)
 
         if serializer.is_valid():
-            med_record_object = MedRecord.objects.get(id = serializer.data['medrecord_id'])
-            medications_object = med_record_object.medications
+            medrecord_object = MedRecord.objects.get(id = serializer.data['medrecord_id'])
+            medications_object = None
 
-            for i in range(len(medications_object)):
-                json_data = json.loads(medications_object[i])
+            if medrecord_object.medications != "":
+                medications_object = json.loads(medrecord_object.medications)
+                medications_object_list = medications_object['medications_list']
+                for medication in medications_object_list:
+                    if medication['medication_id'] == serializer.data['medication_id']:
+                        return Response("Данный препарат уже прописан в данную мед. карту!", status = status.HTTP_400_BAD_REQUEST)
+            
 
-                if json_data['medication_id'] == serializer.data['medication_id']:
-                    return Response("Препарат в данной медицинской карте уже прописан!", status=status.HTTP_400_BAD_REQUEST)
+                # Обращяемся непосредственно к самому списку словарей медикаментов.
+                medications_list = medications_object['medications_list']
 
-            # NOTE: Delete medrecord id.
-            not_medrecord_data = serializer.data
-            not_medrecord_data.pop("medrecord_id")
-            not_medrecord_data['name_medication'] = Medication.objects.get(id=serializer.data['medication_id']).name
+                modifed_serializer_data  = serializer.data
+                modifed_serializer_data.pop("medrecord_id")
+                modifed_serializer_data['name_medication'] = Medication.objects.get(id=serializer.data['medication_id']).name
+                medications_list.append(modifed_serializer_data)
 
-            med_record_object.medications.append(json.dumps(not_medrecord_data))
+                # Устанавливаем новое значение для списка medications_list в поле medications базы MedRecord.
+                medications_object["medications_list"] = medications_list
+                # Делаем замену ординарных на двойные кавычки.
+                medications_object_str = str(medications_object).replace("'", '"')
+                medrecord_object.medications = medications_object_str
+                
+                medrecord_object.save()
 
-            med_record_object_dict = model_to_dict(med_record_object)
-            med_record_object_dict['patientName'] = med_record_object.getPatient()
-            med_record_object_dict['doctorName'] = med_record_object.getDoctor()
-            med_record_object_dict['created'] = str(med_record_object.created)
+            else:
+                # Формирование списка с именнем. Для валидности ряда формата JSON.
+                default_structure = {"medications_list": []}
+                modifed_serializer_data = serializer.data
+                modifed_serializer_data['name_medication'] = Medication.objects.get(id=serializer.data['medication_id']).name
+                default_structure["medications_list"].append(modifed_serializer_data)
+                new_medications = json.dumps(default_structure)
+                # new_medications - str. И вносим в базу.
+                medrecord_object.medications = new_medications
+                medrecord_object.save()
+            
+            # Готовим к выводу.
+            medrecord_object_dict = model_to_dict(medrecord_object)
+            medrecord_object_dict['patientName'] = medrecord_object.getPatient()
+            medrecord_object_dict['doctorName'] = medrecord_object.getDoctor()
+            medrecord_object_dict['created'] = str(medrecord_object.created)
 
+            return Response(medrecord_object_dict)
 
-            med_record_object.save()
-
-            return Response(med_record_object_dict)
         else:
             return Response(serializer.errors)
-        return Response("ok")
+
+
 
 
 class DeleteMedication(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = MedicationDeleteSerializer
 
     def post(self, request):
@@ -132,25 +155,61 @@ class DeleteMedication(APIView):
 
         if serializer.is_valid():
             medrecord_object = MedRecord.objects.get(id = serializer.data['medrecord_id'])
-            medications_in_medrecord = medrecord_object.medications
+            medications_object = json.loads(medrecord_object.medications)
 
-            for i in range(len(medications_in_medrecord)):
-                json_data = json.loads(medications_in_medrecord[i])
+            # Инициализируем счётчик.
+            i = 0
+            for medication in medications_object['medications_list']:
+                if medication['medication_id'] == serializer.data['medication_id']:
+                    medications_object['medications_list'].pop(i)
+                i+=1
 
-                if json_data['medication_id'] == serializer.data['medication_id']:
-                    update_medication = medications_in_medrecord.pop(i)
-                    medrecord_object.medications = medications_in_medrecord
+            # Заносим измёненый список в базу.
+            medrecord_object.medications = json.dumps(medications_object['medications_list'])
+            medrecord_object.save()
 
-                medrecord_object.save()
+            medrecord_object_dict = model_to_dict(medrecord_object)
+            medrecord_object_dict['patientName'] = medrecord_object.getPatient()
+            medrecord_object_dict['doctorName'] = medrecord_object.getDoctor()
+            medrecord_object_dict['created'] = str(medrecord_object.created)
+            
+            return Response(medrecord_object_dict)
 
-                medrecord_object_dict = model_to_dict(medrecord_object)
-                medrecord_object_dict['patientName'] = medrecord_object.getPatient()
-                medrecord_object_dict['doctorName'] = medrecord_object.getDoctor()
-                # BUG: model_to_dict delete field created.
-                medrecord_object_dict['created'] = str(med_record_object.created)
-
-                return Response(medrecord_object_dict)
-            else:
-                return Response("no")
+        
         else:
             return Response(serializer.errors)
+
+class AddTraining(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = AddTrainingSerializer
+
+    def post(self, request):
+
+        serializer = self.serializer_class(data = request.data)
+        if serializer.is_valid():
+            
+            new_training_object = Training(
+                patient = serializer.data['patient'],
+                doctor = serializer.data['doctor'],
+                medrecord = serializer.data['medrecord'],
+                title = serializer.data['title'],
+                description = serializer.data['description'],
+                finish_date = serializer.data['finish_date']
+            )
+
+            new_training_object.save()
+
+            medrecord_object = MedRecord.objects.get(id = serializer.data['medrecord'])
+            medrecord_object.training_list.append(new_training_object.id)
+            medrecord_object.save()
+
+            #   Готовим к выводу.
+            medrecord_object_dict = model_to_dict(medrecord_object)
+            medrecord_object_dict['patientName'] = medrecord_object.getPatient()
+            medrecord_object_dict['doctorName'] = medrecord_object.getDoctor()
+            medrecord_object_dict['created'] = str(medrecord_object.created)
+
+            return Response(medrecord_object_dict)
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

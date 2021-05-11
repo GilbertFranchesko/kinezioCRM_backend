@@ -2,6 +2,8 @@ from rest_framework import serializers
 from django.db.models.fields import TextField
 from django.utils import timezone
 from .models import MedRecord
+from traininglist.models import Training
+
 from medications.models import Medication
 from account.models import User
 
@@ -176,3 +178,9 @@ class MedicationDeleteSerializer(serializers.Serializer):
             return value
         except:
             raise serializers.ValidationError("Препарат не был найден!")
+
+class AddTrainingSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Training
+        fields = "__all__"
