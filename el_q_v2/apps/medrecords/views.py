@@ -78,7 +78,7 @@ class ShowByToken(generics.ListAPIView):
                 doctor_check[i].doctorName = "%s [ID:%i]" % (doctor_check[i].getDoctor(), doctor_check[i].doctor)
                 doctor_check[i].patientName = "%s [ID:%i]" % (doctor_check[i].getPatient(), doctor_check[i].patient)
             return doctor_check
-
+# rev
 class UpdateMedRecords(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [AllowAny]
     serializer_class = MedRecordIDSerializer
