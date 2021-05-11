@@ -1,5 +1,5 @@
 from django.urls import re_path, path
-from .views import ShowALL, ShowByID, ShowByPatient, ShowByDoctor, ShowByToken, UpdateMedRecords, AddMedication, DeleteMedication, AddTraining
+from .views import ShowALL, ShowByID, ShowByPatient, ShowByDoctor, ShowByToken, UpdateMedRecords, AddMedication, DeleteMedication, AddTraining, RemomveTraining
 urlpatterns = [
     re_path(r'^showAll/?$', ShowALL.as_view(), name="show"),
     path('showBy/', ShowByID.as_view(), name="show_by_id"),
@@ -11,6 +11,7 @@ urlpatterns = [
     path('addMedication/', AddMedication.as_view(), name="add_medication"),
     path('deleteMedication/', DeleteMedication.as_view(), name="delete_medication"),
 
-    path('addTraining/', AddTraining.as_view(), name="add_training_in_medrecord")
+    path('addTraining/', AddTraining.as_view(), name="add_training_in_medrecord"),
+    path('removeTraining/', RemomveTraining.as_view(), name="remove_training_in_medrecord")
 
 ]

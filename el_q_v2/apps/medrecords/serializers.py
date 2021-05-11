@@ -184,3 +184,15 @@ class AddTrainingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Training
         fields = "__all__"
+
+
+class TrainingIdFromList(serializers.Serializer):
+    training_id = serializers.IntegerField()
+    medrecord_id = serializers.IntegerField()
+
+    def validate_medrecord_id(self, value):
+        try:
+            query = MedRecord.objects.get(id=value)
+            return value
+        except:
+            raise serializers.ValidationError("Медицинская карта не найдена!")

@@ -2,7 +2,7 @@ from rest_framework import status, generics
 from .models import MedRecord
 from medications.models import Medication
 from traininglist.models import Training
-from .serializers import MedRecordSerializer, MedRecordIDSerializer, MedRecordInitSerializer, MedRecordShowBy, MedicationSerializer, MedicationDeleteSerializer, AddTrainingSerializer
+from .serializers import MedRecordSerializer, MedRecordIDSerializer, MedRecordInitSerializer, MedRecordShowBy, MedicationSerializer, MedicationDeleteSerializer, AddTrainingSerializer, TrainingIdFromList
 from rest_framework.permissions import AllowAny,  IsAuthenticated
 from rest_framework.response import Response
 from django.forms.models import model_to_dict
@@ -78,7 +78,7 @@ class ShowByToken(generics.ListAPIView):
                 doctor_check[i].doctorName = "%s [ID:%i]" % (doctor_check[i].getDoctor(), doctor_check[i].doctor)
                 doctor_check[i].patientName = "%s [ID:%i]" % (doctor_check[i].getPatient(), doctor_check[i].patient)
             return doctor_check
-# rev
+            
 class UpdateMedRecords(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [AllowAny]
     serializer_class = MedRecordIDSerializer
@@ -144,8 +144,6 @@ class AddMedication(APIView):
             return Response(serializer.errors)
 
 
-
-
 class DeleteMedication(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = MedicationDeleteSerializer
@@ -165,7 +163,9 @@ class DeleteMedication(APIView):
                 i+=1
 
             # Заносим измёненый список в базу.
-            medrecord_object.medications = json.dumps(medications_object['medications_list'])
+            edit_list = json.dumps(medications_object['medications_list'])
+            if edit_list == "[]": edit_list = ""
+            medrecord_object.medications = edit_list
             medrecord_object.save()
 
             medrecord_object_dict = model_to_dict(medrecord_object)
@@ -180,7 +180,7 @@ class DeleteMedication(APIView):
             return Response(serializer.errors)
 
 class AddTraining(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = AddTrainingSerializer
 
     def post(self, request):
@@ -210,6 +210,38 @@ class AddTraining(APIView):
             medrecord_object_dict['created'] = str(medrecord_object.created)
 
             return Response(medrecord_object_dict)
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RemomveTraining(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TrainingIdFromList
+
+    def post(self, request):
+        serializer = self.serializer_class(data = request.data)
+
+        if serializer.is_valid():
+            
+            #   Удаляём саму запись тренировки.
+            training_object = Training.objects.get(id=serializer.data['training_id'])
+            training_object.delete()
+            
+            #   Убираем индекс записи из мед. карты.
+            medrecord_object = MedRecord.objects.get(id=serializer.data['medrecord_id'])
+            medrecord_object.training_list.pop(medrecord_object.training_list.index(serializer.data['training_id']))
+            print(medrecord_object.training_list)
+            medrecord_object.save()
+            
+            #   Готовим к выводу.
+            medrecord_object_dict = model_to_dict(medrecord_object)
+            medrecord_object_dict['patientName'] = medrecord_object.getPatient()
+            medrecord_object_dict['doctorName'] = medrecord_object.getDoctor()
+            medrecord_object_dict['created'] = str(medrecord_object.created)
+
+            return Response(medrecord_object_dict)
+            
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
