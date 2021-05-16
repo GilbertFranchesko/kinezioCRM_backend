@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.forms.models import model_to_dict
 from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
@@ -42,7 +43,10 @@ class ShowAll(generics.ListCreateAPIView):
                 patient = patient
             )
             new_object.save()
-            return Response("ok")
+
+            new_object_dict = model_to_dict(new_object)
+
+            return Response(new_object_dict)
 
 
 class ShowByToken(generics.ListAPIView):
@@ -57,7 +61,7 @@ class ShowByToken(generics.ListAPIView):
             check_patient.doctorName = check_patient.getDoctor()
             return [check_patient, ]
         elif self.request.user.type == "Врач":
-            check_doctor = Record.objects.filter(doctor=user).order_by('-id')
+            check_doctor = Record.objects.filter(doctor=user).order_by('dateEvent')
             for i in range(len(check_doctor)):
                 if not check_doctor[i].patient == 0:
                     check_doctor[i].patientName = check_doctor[i].getPatient()

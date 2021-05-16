@@ -56,7 +56,10 @@ INSTALLED_APPS = [
     'records',
     'notifications',
     'traininglist',
-    'medications'
+    'medications',
+
+    'sessions_tg_code',
+
 
 ]
 
@@ -165,9 +168,15 @@ USE_TZ = True
 DATE_INPUT_FORMATS = "d M Y (H:i:s)"
 
 # Celery
+CELERY_TIMEZONE = "Europe/Moscow"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TRACK_STARTED = 30 * 60
+
 CELERY_BROKER_URL = "redis://localhost:6379"
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [

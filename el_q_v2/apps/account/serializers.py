@@ -94,7 +94,10 @@ class PatientSerializer(serializers.Serializer):
     last_name = serializers.CharField(max_length=255)
     AllName = serializers.CharField(max_length=255, allow_null=True)
 
-class DoctorSerializer(serializers.Serializer):
+    telegram_id = serializers.IntegerField()
+    telegram_chat_id = serializers.IntegerField()
+
+class DoctorSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     first_name = serializers.CharField(max_length=255)
     last_name = serializers.CharField(max_length=255)
@@ -103,3 +106,6 @@ class DoctorSerializer(serializers.Serializer):
     specialist = serializers.CharField(max_length=255)
     cabinet = serializers.IntegerField()
     bio = serializers.CharField()
+
+    telegram_id = serializers.IntegerField()
+    telegram_chat_id = serializers.IntegerField()

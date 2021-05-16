@@ -24,5 +24,6 @@ urlpatterns = [
     path('api/records/', include('records.urls')),
     path('api/notifications/', include('notifications.urls')),
     path('api/medications/', include('medications.urls')),
-    path('api/training/', include('traininglist.urls'))
+    path('api/training/', include('traininglist.urls')),
+    path('api/telegram/', include('sessions_tg_code.urls'))
 ]

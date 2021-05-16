@@ -35,6 +35,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     cabinet = models.IntegerField("Номер кабиента", default=-1)
     bio = models.TextField("Краткая биография", default="null")
 
+    telegram_id = models.IntegerField("ID телеграм", default=0)
+    telegram_chat_id = models.IntegerField("ID чата телеграм", default=0)
+
 
     # USERNAME_FIELD - указывает какое поле мы будем юзать для входа.
     USERNAME_FIELD = "email"
